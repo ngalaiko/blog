@@ -19,11 +19,6 @@ Problem This problem was asked by Facebook.
 Given a stream of elements too large to store in memory, pick a random element from the stream with uniform probability.
 Solution There are many variations of such problems, and before solving it, I want to show some basic examples that I met.
 Most trivial one is picking one random element from an array.
-Every programming language has a function to generate a pseudo-random number (int or float) within the given range.</description></item><item><title>Daily Coding Problem #15</title><link>https://galaiko.rocks/posts/probability/</link><pubDate>Mon, 16 Jul 2018 00:00:00 +0000</pubDate><guid>https://galaiko.rocks/posts/probability/</guid><description>Today problem is a probability problem.
-Problem This problem was asked by Facebook.
-Given a stream of elements too large to store in memory, pick a random element from the stream with uniform probability.
-Solution There are many variations of such problems, and before solving it, I want to show some basic examples that I met.
-Most trivial one is picking one random element from an array.
 Every programming language has a function to generate a pseudo-random number (int or float) within the given range.</description></item><item><title>Daily Coding Problem: Boring</title><link>https://galaiko.rocks/posts/dcp/boring/</link><pubDate>Thu, 12 Jul 2018 00:00:00 +0000</pubDate><guid>https://galaiko.rocks/posts/dcp/boring/</guid><description>Problem Hardest problem to solve so far: describing 30min trivial problems turned out to be much less fun than I imagined.
 Problem #8: binary tree (fun, but always same) Problem #9: array operations (boring and always same) Problem #10: go basics (3 lines wtf) Problem #11: a search tree Problem #12: recursive algorithm (always same, sometimes hard to detect) Problem #13: string operations (super lame) I will keep updating GitHub, but not sure about the website.</description></item><item><title>Daily Coding Problem: Problem #7</title><link>https://galaiko.rocks/posts/dcp/problem-7/</link><pubDate>Sun, 08 Jul 2018 00:00:00 +0000</pubDate><guid>https://galaiko.rocks/posts/dcp/problem-7/</guid><description>Problem This problem was asked by Facebook.
 Given the mapping a = 1, b = 2, &amp;hellip; z = 26, and an encoded message, count the number of ways it can be decoded.

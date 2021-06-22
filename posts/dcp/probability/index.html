@@ -4,7 +4,7 @@ of an array <strong>A</strong> as of <strong>N</strong> numbers, it&rsquo;s clea
     <span class=k>return</span> <span class=nx>aa</span><span class=p>[</span><span class=nx>i</span><span class=p>]</span>
 <span class=p>}</span>
 </code></pre></div><p>Sometimes you need to pick <strong>N random elements from an array</strong>.</p><p>In this case, you can use the same approach and pick <strong>N</strong> indexes from <strong>0</strong> to <strong>len(A)</strong>.</p><div class=highlight><pre class=chroma><code class=language-go data-lang=go><span class=kd>func</span> <span class=nf>nRandom</span><span class=p>(</span><span class=nx>a</span> <span class=p>[]</span><span class=kt>int</span><span class=p>,</span> <span class=nx>n</span> <span class=kt>int</span><span class=p>)</span> <span class=p>[]</span><span class=kt>int</span> <span class=p>{</span>
-    <span class=nx>result</span> <span class=o>:=</span> <span class=nb>make</span><span class=p>([]</span><span class=kt>int</span><span class=p>,</span> <span class=nx>n</span><span class=p>)</span> 
+    <span class=nx>result</span> <span class=o>:=</span> <span class=nb>make</span><span class=p>([]</span><span class=kt>int</span><span class=p>,</span> <span class=nx>n</span><span class=p>)</span>
     <span class=k>for</span> <span class=nx>i</span> <span class=o>:=</span> <span class=mi>0</span><span class=p>;</span> <span class=nx>i</span> <span class=p>&lt;</span> <span class=nx>n</span><span class=p>;</span> <span class=nx>i</span><span class=o>++</span> <span class=p>{</span>
         <span class=nx>result</span><span class=p>[</span><span class=nx>i</span><span class=p>]</span> <span class=p>=</span> <span class=nf>oneRandom</span><span class=p>(</span><span class=nx>a</span><span class=p>)</span>
     <span class=p>}</span>
@@ -32,9 +32,9 @@ and choose from others next:</p><div class=highlight><pre class=chroma><code cla
 </span><span class=c1></span>        <span class=nx>choosenIndex</span> <span class=o>:=</span> <span class=nx>rand</span><span class=p>.</span><span class=nf>Intn</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=nx>chooseFrom</span><span class=p>))</span>     <span class=c1>// pick a random index from i to N
 </span><span class=c1></span>        <span class=nx>a</span><span class=p>[</span><span class=nx>i</span><span class=p>],</span> <span class=nx>a</span><span class=p>[</span><span class=nx>choosenIndex</span><span class=p>]</span> <span class=p>=</span> <span class=nx>a</span><span class=p>[</span><span class=nx>choosenIndex</span><span class=p>],</span> <span class=nx>a</span><span class=p>[</span><span class=nx>i</span><span class=p>]</span>  <span class=c1>// swap choosenElement with i
 </span><span class=c1></span>    <span class=p>}</span>
-    <span class=c1>// after all, we have choosen elements at the 
+    <span class=c1>// after all, we have choosen elements at the
 </span><span class=c1></span>    <span class=c1>// begining of an array, and probability is always same.
-</span><span class=c1></span>    <span class=k>return</span> <span class=nx>a</span><span class=p>[:</span><span class=nx>n</span><span class=p>]</span> 
+</span><span class=c1></span>    <span class=k>return</span> <span class=nx>a</span><span class=p>[:</span><span class=nx>n</span><span class=p>]</span>
 <span class=p>}</span>
 </code></pre></div><p>Let&rsquo;s return to problem #15 and try to solve it using previous examples.</p><p>What do we have:</p><ol><li>a stream of elements too large to store in memory</li><li>should pick 1 random element</li></ol><p>We understand that to pick a random element from the stream with uniform probability,
 we need to process hole stream somehow (without storing to memory).</p><p>Well, we always can iterate over a stream (but just once).</p><p>If we knew the length of a stream, we could use the approach from the first example, that would be perfect.</p><p>In first example each element of an array have a linked number - it&rsquo;s index.

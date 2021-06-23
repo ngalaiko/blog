@@ -1,0 +1,95 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Nikita Galaiko"><link rel="shortcut icon" href=https://galaiko.rocks/favicon.ico><link rel=stylesheet href=/css/style.min.css><title>Words Count</title></head><body><header id=banner><h2><a href=https://galaiko.rocks>Nikita Galaiko</a></h2><nav><ul><li><a href=/posts/ title>Posts</a></li><li><a href=/about/ title>About</a></li><li><a href=/posts/index.xml title>RSS</a></li></ul></nav></header><main id=content><article><header id=post-header><h1>Words Count</h1><div><time>May 11, 2019</time></div></header><p>Last week I participated in a small competiotion at work. The goal was to calculate the
+top 10 the most common words in a file and print them with number of occurences. For
+testing we used export from HackerNews comments from 2012 until today, and that file
+was 4GB.</p><p>I will describe what optimizations I used to solve the problem from the most to the least
+obvious.</p><p>Solution was measured on MacBook Pro 2018 with 2,2 GHz Intel Core i7 CPU and 32 GB RAM.</p><h2 id=generic-solution>Generic solution</h2><p>The most simple way to solve this is to iterate over the file, save words to a map with
+number of occurences, then iterate over the map and print top 10 most common words.</p><div class=highlight><pre class=chroma><code class=language-go data-lang=go><span class=kd>func</span> <span class=nf>countWords</span><span class=p>(</span><span class=nx>fileData</span> <span class=p>[]</span><span class=kt>byte</span><span class=p>)</span> <span class=p>{</span>
+    <span class=nx>words</span> <span class=o>:=</span> <span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kt>uint</span><span class=p>{}</span>
+
+    <span class=nx>wordBuf</span> <span class=o>:=</span> <span class=nb>make</span><span class=p>([]</span><span class=kt>byte</span><span class=p>,</span> <span class=mi>64</span><span class=p>)</span>
+    <span class=nx>wordPos</span> <span class=o>:=</span> <span class=mi>0</span>
+    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>c</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>fileData</span> <span class=p>{</span>
+            <span class=k>switch</span> <span class=p>{</span>
+            <span class=k>case</span> <span class=nx>c</span> <span class=o>&gt;=</span> <span class=sc>&#39;A&#39;</span> <span class=o>&amp;&amp;</span> <span class=nx>c</span> <span class=o>&lt;=</span> <span class=sc>&#39;Z&#39;</span><span class=p>:</span>
+                    <span class=nx>c</span> <span class=o>+=</span> <span class=mi>32</span>
+                    <span class=k>fallthrough</span>
+            <span class=k>case</span> <span class=nx>c</span> <span class=o>&gt;=</span> <span class=sc>&#39;a&#39;</span> <span class=o>&amp;&amp;</span> <span class=nx>c</span> <span class=o>&lt;=</span> <span class=sc>&#39;z&#39;</span><span class=p>:</span>
+                    <span class=k>if</span> <span class=nx>wordPos</span> <span class=o>==</span> <span class=nx>maxLen</span> <span class=p>{</span>
+                            <span class=k>continue</span>
+                    <span class=p>}</span>
+                    <span class=nx>wordBuf</span><span class=p>[</span><span class=nx>wordPos</span><span class=p>]</span> <span class=p>=</span> <span class=nx>c</span>
+                    <span class=nx>wordPos</span><span class=o>++</span>
+            <span class=k>default</span><span class=p>:</span>
+                    <span class=k>if</span> <span class=nx>wordPos</span> <span class=o>==</span> <span class=mi>0</span> <span class=p>{</span>
+                        <span class=k>continue</span>
+                    <span class=p>}</span>
+
+                    <span class=nx>words</span><span class=p>[</span><span class=nb>string</span><span class=p>(</span><span class=nx>wordBuf</span><span class=p>[:</span><span class=nx>wordPos</span><span class=p>])]</span><span class=o>++</span>
+                    <span class=nx>wordPos</span> <span class=p>=</span> <span class=mi>0</span>
+            <span class=p>}</span>
+            <span class=nx>words</span><span class=p>[</span><span class=nb>string</span><span class=p>(</span><span class=nx>wordBuf</span><span class=p>[:</span><span class=nx>wordPos</span><span class=p>])]</span><span class=o>++</span>
+    <span class=p>}</span>
+<span class=p>}</span>
+</code></pre></div><p>This will make a map with number of occurences of each English word in the file.</p><p>It takes ~1min to make this map.</p><p>After that keys needs to be sorted:</p><div class=highlight><pre class=chroma><code class=language-go data-lang=go><span class=nx>freq</span> <span class=o>:=</span> <span class=nb>make</span><span class=p>([]</span><span class=o>*</span><span class=kt>string</span><span class=p>,</span> <span class=mi>2</span><span class=o>&lt;&lt;</span><span class=mi>25</span><span class=p>)</span>
+<span class=k>for</span> <span class=nx>word</span><span class=p>,</span> <span class=nx>count</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>words</span> <span class=p>{</span>
+    <span class=nx>wCopy</span> <span class=o>:=</span> <span class=nx>word</span>
+    <span class=nx>freq</span><span class=p>[</span><span class=nx>count</span><span class=p>]</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>wCopy</span>
+<span class=p>}</span>
+
+<span class=nx>done</span> <span class=o>:=</span> <span class=mi>0</span>
+<span class=k>for</span> <span class=nx>i</span> <span class=o>:=</span> <span class=nb>uint64</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=nx>freq</span><span class=p>)</span> <span class=o>-</span> <span class=mi>1</span><span class=p>);</span> <span class=nx>i</span> <span class=p>&gt;</span> <span class=mi>0</span> <span class=o>&amp;&amp;</span> <span class=nx>done</span> <span class=p>&lt;</span> <span class=mi>10</span><span class=p>;</span> <span class=nx>i</span><span class=o>--</span> <span class=p>{</span>
+    <span class=k>if</span> <span class=nx>freq</span><span class=p>[</span><span class=nx>i</span><span class=p>]</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+        <span class=k>continue</span>
+    <span class=p>}</span>
+    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;%s: %d\n&#34;</span><span class=p>,</span> <span class=o>*</span><span class=nx>freq</span><span class=p>[</span><span class=nx>i</span><span class=p>],</span> <span class=nx>i</span><span class=p>)</span>
+    <span class=nx>done</span><span class=o>++</span>
+<span class=p>}</span>
+</code></pre></div><p>This is a terrible way of sorting anything in real life, but it words fast, and that&rsquo;s
+exactly what we need in out case. It took ~113ms</p><h2 id=reading-file-concurrently>Reading file concurrently</h2><p>The next step is to assume that it could go faster if file is processed in batches
+concurrently. That is true, but it will also create <a href=https://galaiko.rocks/posts/blog/go-data-races/>data races</a>.
+To solve it, I will use this implementation of a map with atomic write.</p><p>Another way to go from here is to save results from each thread to it&rsquo;s own map and
+then merge maps.</p><div class=highlight><pre class=chroma><code class=language-go data-lang=go><span class=kd>func</span> <span class=nf>fromFile</span><span class=p>(</span><span class=nx>filepath</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>batchSize</span> <span class=kt>int64</span><span class=p>,</span> <span class=nx>tk</span> <span class=o>*</span><span class=nx>count</span><span class=p>.</span><span class=nx>Stream</span><span class=p>)</span> <span class=kt>error</span> <span class=p>{</span>
+        <span class=nx>file</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>os</span><span class=p>.</span><span class=nf>Open</span><span class=p>(</span><span class=nx>filepath</span><span class=p>)</span>
+        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+                <span class=k>return</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Errorf</span><span class=p>(</span><span class=s>&#34;failed to read `%s`: %s&#34;</span><span class=p>,</span> <span class=nx>filepath</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+        <span class=p>}</span>
+        <span class=k>defer</span> <span class=nx>file</span><span class=p>.</span><span class=nf>Close</span><span class=p>()</span>
+
+        <span class=nx>info</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>file</span><span class=p>.</span><span class=nf>Stat</span><span class=p>()</span>
+        <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+                <span class=k>return</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Errorf</span><span class=p>(</span><span class=s>&#34;failed to stat `%s`: %s&#34;</span><span class=p>,</span> <span class=nx>filepath</span><span class=p>,</span> <span class=nx>err</span><span class=p>)</span>
+        <span class=p>}</span>
+
+        <span class=nx>all</span> <span class=o>:=</span> <span class=nx>info</span><span class=p>.</span><span class=nf>Size</span><span class=p>()</span> <span class=o>/</span> <span class=nx>batchSize</span>
+        <span class=nx>wg</span> <span class=o>:=</span> <span class=o>&amp;</span><span class=nx>errgroup</span><span class=p>.</span><span class=nx>Group</span><span class=p>{}</span>
+        <span class=k>for</span> <span class=nx>i</span> <span class=o>:=</span> <span class=nb>int64</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span> <span class=nx>i</span> <span class=p>&lt;</span> <span class=nx>all</span><span class=p>;</span> <span class=nx>i</span><span class=o>++</span> <span class=p>{</span>
+                <span class=nx>i</span> <span class=o>:=</span> <span class=nx>i</span>
+                <span class=c1>// NOTE: read concurrently and process in batch
+</span><span class=c1></span>                <span class=nx>wg</span><span class=p>.</span><span class=nf>Go</span><span class=p>(</span><span class=kd>func</span><span class=p>()</span> <span class=kt>error</span> <span class=p>{</span>
+
+                        <span class=nx>buff</span> <span class=o>:=</span> <span class=nb>make</span><span class=p>([]</span><span class=kt>byte</span><span class=p>,</span> <span class=nx>batchSize</span><span class=p>)</span>
+
+                        <span class=nx>off</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>file</span><span class=p>.</span><span class=nf>ReadAt</span><span class=p>(</span><span class=nx>buff</span><span class=p>,</span> <span class=nx>batchSize</span><span class=o>*</span><span class=nx>i</span><span class=p>)</span>
+                        <span class=k>switch</span> <span class=nx>err</span> <span class=p>{</span>
+                        <span class=k>case</span> <span class=kc>nil</span><span class=p>:</span>
+                        <span class=k>case</span> <span class=nx>io</span><span class=p>.</span><span class=nx>EOF</span><span class=p>:</span>
+                                <span class=k>return</span> <span class=kc>nil</span>
+                        <span class=k>default</span><span class=p>:</span>
+                                <span class=k>return</span> <span class=nx>err</span>
+                        <span class=p>}</span>
+
+                        <span class=nf>processBatch</span><span class=p>(</span><span class=nx>buff</span><span class=p>[:</span><span class=nx>off</span><span class=p>],</span> <span class=nx>tk</span><span class=p>)</span>
+
+                        <span class=k>return</span> <span class=kc>nil</span>
+                <span class=p>})</span>
+        <span class=p>}</span>
+
+        <span class=k>return</span> <span class=nx>wg</span><span class=p>.</span><span class=nf>Wait</span><span class=p>()</span>
+<span class=p>}</span>
+</code></pre></div><p>I was using <code>2&lt;&lt;19-1</code> as a <code>batchSize</code>. This is based on test runs and nothins else.</p><p><code>tk</code> here contains an instance of <a href=https://github.com/cornelk/hashmap/>github.com/cornelk/hashmap</a></p><h2 id=law-of-large-numbers>Law of Large numbers</h2><p>The last optimization, and the biggest one I&rsquo;ve made is not completely about programming.</p><p>There is this theorem in probablility theory that says:</p><blockquote><p>the average of the results obtained from a large number of trials should be close
+to the expected value, and will tend to become closer as more trials are performed</p></blockquote><p>That means that if you take a large file with English text and count top 10 words in there,
+the top will always look almost the same.</p><p>Next step here is to google <a href=https://en.wikipedia.org/wiki/Most_common_words_in_English>most common words in English</a>
+and use this list to decrease number of words we count.</p><p>By doing that, amount of writes to the map will dramaticaly decrease, what will allow
+to spend less time waiting for write access to the map.</p><p>After implementing this, processing time is ~25s</p><p>You can find full code on <a href=https://github.com/ngalaiko/words>Github</a></p></article></main><footer id=footer><style>a{color:inherit;text-decoration:none}a:hover{text-decoration:underline}</style>&copy; 2021
+<a href=https://galaiko.rocks>Nikita Galaiko</a>
+&#183; <a href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank rel=noopener>CC BY-NC 4.0</a></footer></body></html>

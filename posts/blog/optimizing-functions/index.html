@@ -156,7 +156,7 @@ switch on an interface type:</p><div class=highlight><pre class=chroma><code cla
 </span><span class=c1></span><span class=kd>func</span> <span class=nf>Valid</span><span class=p>(</span><span class=nx>i</span> <span class=kd>interface</span><span class=p>{})</span> <span class=kt>bool</span> <span class=p>{</span>
 	<span class=k>switch</span> <span class=nx>v</span> <span class=o>:=</span> <span class=nx>i</span><span class=p>.(</span><span class=kd>type</span><span class=p>)</span> <span class=p>{</span>
 	<span class=k>case</span> <span class=kt>int</span><span class=p>,</span> <span class=kt>int32</span><span class=p>,</span> <span class=kt>int64</span><span class=p>,</span> <span class=kt>uint</span><span class=p>,</span> <span class=kt>uint32</span><span class=p>,</span> <span class=kt>uint64</span><span class=p>:</span>
-		<span class=k>return</span> <span class=nf>ValidString</span><span class=p>(</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Sprint</span><span class=p>(</span><span class=nx>v</span><span class=p>))</span> 
+		<span class=k>return</span> <span class=nf>ValidString</span><span class=p>(</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Sprint</span><span class=p>(</span><span class=nx>v</span><span class=p>))</span>
 	<span class=k>case</span> <span class=kt>string</span><span class=p>:</span>
 		<span class=k>return</span> <span class=nf>ValidString</span><span class=p>(</span><span class=nx>v</span><span class=p>)</span>
 	<span class=k>default</span><span class=p>:</span>
@@ -451,6 +451,6 @@ goarch: amd64
 pkg: github.com/ngalayko/go
 BenchmarkValid-4  <span class=m>20000000</span>  94.0 ns/op  <span class=m>16</span> B/op  <span class=m>1</span> allocs/op
 PASS
-</code></pre></div><p><img src=/media/optimization-n.jpg alt=Optimizaion-N></p><p><img src=/media/optimization-bytes.jpg alt=Optimizaion-bytes></p><p><img src=/media/optimization-allocs.jpg alt=Optimizaion-allocs></p><p><img src=/media/optimization-ns.jpg alt=Optimizaion-ns></p><p>If you have an idea how to improve it more, please share.</p></article></main><footer id=footer><style>a{color:inherit;text-decoration:none}a:hover{text-decoration:underline}</style>&copy; 2021
+</code></pre></div><p><img src=/media/optimization-n.png alt=Optimizaion-N></p><p><img src=/media/optimization-bytes.png alt=Optimizaion-bytes></p><p><img src=/media/optimization-allocs.png alt=Optimizaion-allocs></p><p><img src=/media/optimization-ns.png alt=Optimizaion-ns></p><p>If you have an idea how to improve it more, please share.</p></article></main><footer id=footer><style>a{color:inherit;text-decoration:none}a:hover{text-decoration:underline}</style>&copy; 2021
 <a href=https://galaiko.rocks>Nikita Galaiko</a>
 &#183; <a href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank rel=noopener>CC BY-NC 4.0</a></footer></body></html>

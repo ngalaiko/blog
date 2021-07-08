@@ -1,0 +1,19 @@
+defaultContentLanguage: "en"
+theme: "saegea"
+summaryLength: 20
+
+params:
+  colortheme: "acute"
+  dark: true
+
+languages:
+  en:
+    author:
+      name: "Nikita Galaiko"
+      icon: "apple-touch-icon.png"
+    contentDir: "content/en"
+    languageName: "English"
+    languageCode: "en-US"
+    site:
+      title: "Nikita Galaiko"
+      subtitle: "Software Engineer"
